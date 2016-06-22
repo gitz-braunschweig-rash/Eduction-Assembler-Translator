@@ -87,7 +87,7 @@ QString MainWindow::translateLoadFixed(const QString &_command)
     QString address = tokens.at(2);
 
     qDebug() << tokens.first() << r1 << address;
-    return operationToNumber(operation) + registerToNumber(r1) + address;
+    return operationToNumber(operation) + registerToNumber(r1) + fillHexNumbers(address);
 }
 
 QString MainWindow::translateStoreFixed(const QString &_command)
@@ -104,7 +104,7 @@ QString MainWindow::translateStoreFixed(const QString &_command)
     QString address = tokens.at(2);
 
     qDebug() << tokens.first() << r1 << address;
-    return operationToNumber(operation) + registerToNumber(r1) + address;
+    return operationToNumber(operation) + registerToNumber(r1) + fillHexNumbers(address);
 }
 
 QString MainWindow::translatePush(const QString &_command)
@@ -140,6 +140,21 @@ QString MainWindow::translatePop(const QString &_command)
     return operationToNumber(operation) + registerToNumber(r1) +"00";
 }
 
+QString MainWindow::translateStackPointer(const QString &_command)
+{
+    QStringList tokens = _command.split(" ");
+    QString operation = tokens.first().toLower().trimmed();
+
+    if(operation != "set_stack_pointer")
+    {
+        qDebug() << "translatePop wrong command" << _command;
+    }
+
+    QString address = tokens.at(1);
+    qDebug() << operation << address;
+    return operationToNumber(operation) + fillHexNumbersUpToTree(address);
+}
+
 QString MainWindow::translateAddRegisterFirstHalf(const QString &_command)
 {
     QStringList tokens = _command.split(" ");
@@ -154,7 +169,7 @@ QString MainWindow::translateAddRegisterFirstHalf(const QString &_command)
     QString value = tokens.at(2);
 
     qDebug() << tokens.first() << r1 << value;
-    return operationToNumber(operation) + registerToNumber(r1) + value;
+    return operationToNumber(operation) + registerToNumber(r1) + fillHexNumbers(value);
 }
 
 QString MainWindow::translateAddRegisterSecondHalf(const QString &_command)
@@ -171,7 +186,7 @@ QString MainWindow::translateAddRegisterSecondHalf(const QString &_command)
     QString value = tokens.at(2);
 
     qDebug() << tokens.first() << r1 << value;
-    return operationToNumber(operation) + registerToNumber(r1) + value;
+    return operationToNumber(operation) + registerToNumber(r1) + fillHexNumbers(value);
 }
 
 QString MainWindow::translateJumpFixed(const QString &_command)
@@ -187,7 +202,7 @@ QString MainWindow::translateJumpFixed(const QString &_command)
     QString address = tokens.at(1);
 
     qDebug() << tokens.first() << address;
-    return operationToNumber(operation) + address;
+    return operationToNumber(operation) + fillHexNumbersUpToTree(address);
 }
 
 QString MainWindow::translateJumpRegister(const QString &_command)
@@ -356,6 +371,27 @@ QString MainWindow::operationToNumber(const QString &_operation)
     }
 }
 
+QString MainWindow::fillHexNumbers(const QString &_operation)
+{
+    QString temp = _operation;
+    if(temp.length() == 1)
+    {
+        temp = "0" + _operation;
+    }
+
+    return temp;
+}
+
+QString MainWindow::fillHexNumbersUpToTree(const QString &_operation)
+{
+    QString temp = fillHexNumbers(_operation);
+    if(temp.length() == 2)
+    {
+        temp = "0" + _operation;
+    }
+    return temp;
+}
+
 void MainWindow::translate()
 {
     QString no_commata = ui->text_assembler->toPlainText();
@@ -427,7 +463,7 @@ void MainWindow::translate()
         }
         else if(operation.toLower() == "set_stack_pointer")
         {
-            binaryResult += "0x6000\n";
+            binaryResult += translateStackPointer(command) + "\n";
         }
         else if(operation.toLower() == "load_register")
         {

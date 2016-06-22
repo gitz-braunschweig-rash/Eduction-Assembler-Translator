@@ -24,6 +24,7 @@ public:
 
     QString translatePush(const QString &_command);
     QString translatePop(const QString &_command);
+    QString translateStackPointer(const QString &_command);
 
     QString translateAddRegisterFirstHalf(const QString &_command);
     QString translateAddRegisterSecondHalf(const QString &_command);
@@ -37,6 +38,8 @@ public:
 
     QString registerToNumber(const QString &_register);
     QString operationToNumber(const QString &_operation);
+    QString fillHexNumbers(const QString &_operation);
+    QString fillHexNumbersUpToTree(const QString &_operation);
 
     ~MainWindow();
 
